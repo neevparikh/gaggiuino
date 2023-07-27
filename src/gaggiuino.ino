@@ -70,6 +70,7 @@ void setup(void) {
   eepromInit();
   runningCfg = eepromGetCurrentValues();
   LOG_INFO("EEPROM Init");
+  tof.setCustomRanges(tofStartValue, tofEndValue);
 
   cpsInit(runningCfg);
   LOG_INFO("CPS Init");
