@@ -2,8 +2,9 @@
 
 ## Deployment of the WebInterface to ESP
 
-1. Run `npm run build`
-2. Use the `webserver` upload action on PIO
+1. Run `npm install` to install dependencies
+2. Run `npm run build`
+3. Use the `webserver` upload action on PIO
 
 ## Development
 There's a very convenient way to develop the app. 
