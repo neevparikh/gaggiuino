@@ -53,6 +53,7 @@ void setup(void) {
 #endif
 
   // Initialise comms library for talking to the ESP mcu
+  LOG_INFO("Comms init");
   espCommsInit();
 
   // Initialize LED
@@ -358,6 +359,29 @@ static void espUpdateState(void) {
         break; // don't push needless data on other pages
     }
     pageRefreshTimer = millis() + REFRESH_ESP_DATA_EVERY;
+
+    /*LCD timer and warmup*/
+    if (brewActive) {
+      lcdSetBrewTimer((millis() > brewingTimer) ? (int)((millis() - brewingTimer) / 1000) : 0);
+      lcdBrewTimerStart(); // nextion timer start
+      lcdWarmupStateStop(); // Flagging warmup notification on Nextion needs to stop (if enabled)
+    } else {
+      lcdBrewTimerStop(); // nextion timer stop
+    }
+
+    pageRefreshTimer = millis() + REFRESH_SCREEN_EVERY;
+  }
+}
+//#############################################################################################
+//###################################____SAVE_BUTTON____#######################################
+//#############################################################################################
+void tryEepromWrite(const eepromValues_t &eepromValues) {
+  bool success = eepromWrite(eepromValues);
+  watchdogReload(); // reload the watchdog timer on expensive operations
+  if (success) {
+    lcdShowPopup("Update successful!");
+  } else {
+    lcdShowPopup("Data out of range!");
   }
 }
 
