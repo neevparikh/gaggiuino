@@ -43,7 +43,7 @@ jobs:
           - name: Main
             command: "lego-stlink"
           - name: Scales
-            command: "scales-calibration-stlink"
+            command: "scales-calibration-dfu"
     steps:
       - uses: actions/checkout@v3
         with:
@@ -91,6 +91,8 @@ jobs:
         environment:
           - "lego-stlink"
           - "scales-calibration-stlink"
+          # - "uart-stm"
+          # - "uart-esp"
     steps:
       - uses: actions/checkout@v3
       - name: Install Platformio
