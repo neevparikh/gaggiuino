@@ -13,7 +13,6 @@ import { VitePWA } from 'vite-plugin-pwa';
 // export default localConfig;
 // -------------------------------------------------
 async function getDevelopmentIp() {
-  // const target = 'http://10.0.0.93';
   const defaultTargetIp = '192.168.4.1';
   try {
     const localConfig = await import('./local.config');
