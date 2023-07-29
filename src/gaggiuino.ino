@@ -126,8 +126,6 @@ static void sensorReadSwitches(void) {
 
 static void sensorsReadTemperature(void) {
   if (millis() > thermoTimer) {
-    espCommsSendSystemState(systemState, 1000);
-    espCommsSendSensorData(currentState, 500);
     currentState.temperature = thermocoupleRead() - runningCfg.boiler.offsetTemp;
 
     float brewTempSetPoint = activeProfile.waterTemperature + runningCfg.boiler.offsetTemp;
