@@ -125,6 +125,8 @@ static void sensorReadSwitches(void) {
 
 static void sensorsReadTemperature(void) {
   if (millis() > thermoTimer) {
+    espCommsSendSystemState(systemState, 1000);
+    espCommsSendSensorData(currentState, 500);
     currentState.temperature = thermocoupleRead() - runningCfg.boiler.offsetTemp;
 
     float brewTempSetPoint = activeProfile.waterTemperature + runningCfg.boiler.offsetTemp;
@@ -309,79 +311,11 @@ static void modeSelect(void) {
 
 static void espUpdateState(void) {
   if (millis() > pageRefreshTimer) {
-    espCommsSendSystemState(systemState, 1000);
-    espCommsSendSensorData(currentState, 500);
  
     if (brewActive && systemState.operationMode == OperationMode::BREW_AUTO) {
       espCommsSendShotData(buildShotSnapshot(millis() - brewingTimer, currentState, phaseProfiler), 100);
-    /*LCD pressure output, as a measure to beautify the graphs locking the live pressure read for the LCD alone*/
-    #ifdef BEAUTIFY_GRAPH
-      lcdSetPressure(currentState.smoothedPressure * 10.f);
-    #else
-      lcdSetPressure(
-        currentState.pressure > 0.f
-          ? currentState.pressure * 10.f
-          : 0.f
-      );
-    #endif
-
-    /*LCD temp output*/
-    float brewTempSetPoint = ACTIVE_PROFILE(runningCfg).setpoint + runningCfg.offsetTemp;
-    // float liveTempWithOffset = currentState.temperature - runningCfg.offsetTemp;
-    currentState.waterTemperature = (currentState.temperature > (float)ACTIVE_PROFILE(runningCfg).setpoint && currentState.brewSwitchState)
-      ? currentState.temperature / (float)brewTempSetPoint + (float)ACTIVE_PROFILE(runningCfg).setpoint
-      : currentState.temperature;
-
-    lcdSetTemperature(std::floor((uint16_t)currentState.temperature));
-
-    /*LCD weight & temp & water lvl output*/
-    switch (lcdCurrentPageId) {
-      case NextionPage::Home:
-        // temp decimal handling
-        tempDecimal = (currentState.waterTemperature - (uint16_t)currentState.waterTemperature) * 10;
-        lcdSetTemperatureDecimal(tempDecimal);
-        // water lvl
-        lcdSetTankWaterLvl(currentState.waterLvl);
-        //weight
-        if (homeScreenScalesEnabled) lcdSetWeight(currentState.weight);
-        break;
-      case NextionPage::BrewGraph:
-      case NextionPage::BrewManual:
-        // temp decimal handling
-        tempDecimal = (currentState.waterTemperature - (uint16_t)currentState.waterTemperature) * 10;
-        lcdSetTemperatureDecimal(tempDecimal);
-        // If the weight output is a negative value lower than -0.8 you might want to tare again before extraction starts.
-        if (currentState.shotWeight) lcdSetWeight(currentState.shotWeight > -0.8f ? currentState.shotWeight : -0.9f);
-        /*LCD flow output*/
-        lcdSetFlow( currentState.smoothedPumpFlow * 10.f);
-        break;
-      default:
-        break; // don't push needless data on other pages
     }
     pageRefreshTimer = millis() + REFRESH_ESP_DATA_EVERY;
-
-    /*LCD timer and warmup*/
-    if (brewActive) {
-      lcdSetBrewTimer((millis() > brewingTimer) ? (int)((millis() - brewingTimer) / 1000) : 0);
-      lcdBrewTimerStart(); // nextion timer start
-      lcdWarmupStateStop(); // Flagging warmup notification on Nextion needs to stop (if enabled)
-    } else {
-      lcdBrewTimerStop(); // nextion timer stop
-    }
-
-    pageRefreshTimer = millis() + REFRESH_SCREEN_EVERY;
-  }
-}
-//#############################################################################################
-//###################################____SAVE_BUTTON____#######################################
-//#############################################################################################
-void tryEepromWrite(const eepromValues_t &eepromValues) {
-  bool success = eepromWrite(eepromValues);
-  watchdogReload(); // reload the watchdog timer on expensive operations
-  if (success) {
-    lcdShowPopup("Update successful!");
-  } else {
-    lcdShowPopup("Data out of range!");
   }
 }
 
