@@ -41,7 +41,7 @@
 #define MIN_WATER_LVL           10u // Min allowable tank water lvl
 
 const uint16_t tofStartValue = 15u; // Tof offset when tank is full
-const uint16_t tofEndValue = 125u; // Tof offset when tank is nearly empty
+const uint16_t tofEndValue = 175u; // Tof offset when tank is nearly empty
 
 //Timers
 unsigned long systemHealthTimer;
