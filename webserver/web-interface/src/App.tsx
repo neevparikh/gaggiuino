@@ -33,8 +33,17 @@ const router = createBrowserRouter(
 );
 
 function App() {
+  return (
+    <>
+      <WebSocket />
+      <RouterProvider router={router} />
+    </>
+  );
+}
+
+function WebSocket() {
   useWebSocket(`ws://${window.location.host}/ws`);
-  return <RouterProvider router={router} />;
+  return null;
 }
 
 export default App;
