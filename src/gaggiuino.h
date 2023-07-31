@@ -63,8 +63,8 @@ const float calibrationPressure = 2.f;
 #else
 const float calibrationPressure = 0.65f;
 #endif
-const uint16_t tofStartValue = 15u; // Tof offset when tank is full
-const uint16_t tofEndValue = 125u; // Tof offset when tank is nearly empty
+const uint16_t tofStartValue = TOF_START != 0u ? TOF_START : 15u; // Tof offset when tank is full
+const uint16_t tofEndValue = TOF_END != 0u ? TOF_END : 145u; // Tof offset when tank is nearly empty
 
 //Timers
 unsigned long systemHealthTimer;
